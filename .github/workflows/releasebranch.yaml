@@ -57,7 +57,7 @@ jobs:
           git checkout -b $BRANCH $COMMIT_SHA
 
           # Push branch
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH --force
 
           # Create tag pointing to that commit
           git tag $TAG $COMMIT_SHA
