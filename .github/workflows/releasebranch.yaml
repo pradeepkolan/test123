@@ -34,7 +34,9 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: deploy   # 👈 only runs if deployment succeeds
+    needs: deploy
+    permissions:
+      contents: write   # allow pushing branches/tags
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -46,26 +48,17 @@ jobs:
 
       - name: Create release branch and tag
         run: |
-          DATE=$(date +'%Y%m%d')              # e.g., 20260305
+          DATE=$(date +'%Y%m%d')                # e.g., 20260305
           BRANCH="release-$DATE"
-          COMMIT_SHA=${GITHUB_SHA}
+          COMMIT_SHA=${GITHUB_SHA}              # commit that triggered the workflow
           TAG="release-$DATE-$COMMIT_SHA"
 
-          # Create branch
-          git checkout -b $BRANCH
+          # Create branch from the commit
+          git checkout -b $BRANCH $COMMIT_SHA
 
           # Push branch
-          git push origin $BRANCH
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH
 
-          # Create tag attached to branch HEAD
-          git tag $TAG
-          git push origin $TAG
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "Release ${{ github.ref_name }}"
-          body: "Deployment completed successfully."
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Create tag pointing to that commit
+          git tag $TAG $COMMIT_SHA
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $TAG
