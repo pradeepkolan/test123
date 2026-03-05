@@ -48,7 +48,8 @@ jobs:
         run: |
           DATE=$(date +'%Y%m%d')              # e.g., 20260305
           BRANCH="release-$DATE"
-          TAG="v$DATE"
+          COMMIT_SHA=${GITHUB_SHA}
+          TAG="release-$DATE-$COMMIT_SHA"
 
           # Create branch
           git checkout -b $BRANCH
