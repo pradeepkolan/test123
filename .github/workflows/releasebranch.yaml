@@ -1,5 +1,6 @@
 name: Deploy Application
-
+permissions:
+  contents: write   # allow pushing branches/tags
 on:
   push:
     branches:
