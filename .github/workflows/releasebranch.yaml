@@ -1,0 +1,69 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build project
+        run: echo "Building project..."
+
+      - name: Run tests
+        run: echo "Running tests..."
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: production
+      url: https://your-app.example.com
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Deploy application
+        run: echo "Deploying to production..."
+
+  release:
+    runs-on: ubuntu-latest
+    needs: deploy   # 👈 only runs if deployment succeeds
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Create release branch and tag
+        run: |
+          DATE=$(date +'%Y%m%d')              # e.g., 20260305
+          BRANCH="release-$DATE"
+          TAG="v$DATE"
+
+          # Create branch
+          git checkout -b $BRANCH
+
+          # Push branch
+          git push origin $BRANCH
+
+          # Create tag attached to branch HEAD
+          git tag $TAG
+          git push origin $TAG
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
+          body: "Deployment completed successfully."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
