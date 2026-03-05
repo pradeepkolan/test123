@@ -1,0 +1,38 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build project
+        run: |
+          echo "Building project..."
+          # your build commands here
+
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          # your test commands here
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: production   # 👈 this environment must be configured in GitHub
+      url: https://your-app.example.com
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Deploy application
+        run: |
+          echo "Deploying to production..."
+          # your deployment commands here
