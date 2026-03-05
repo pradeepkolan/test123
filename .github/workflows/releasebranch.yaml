@@ -61,4 +61,5 @@ jobs:
 
           # Create tag pointing to that commit
           git tag $TAG $COMMIT_SHA
+          git pull
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $TAG --force
