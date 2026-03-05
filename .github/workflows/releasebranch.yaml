@@ -48,18 +48,20 @@ jobs:
 
       - name: Create release branch and tag
         run: |
-          DATE=$(date +'%Y%m%d')                # e.g., 20260305
-          BRANCH="release-$DATE"
-          COMMIT_SHA=${GITHUB_SHA}              # commit that triggered the workflow
-          TAG="release-$DATE-$COMMIT_SHA"
+         DATE=$(date +'%Y%m%d')
+         BRANCH="release-$DATE"
+         COMMIT_SHA=${GITHUB_SHA}
+         TAG="release-$DATE-${COMMIT_SHA:0:7}"   # short SHA for readability
 
-          # Create branch from the commit
-          git checkout -b $BRANCH $COMMIT_SHA
+         git config user.name "github-actions"
+         git config user.email "github-actions@github.com"
 
-          # Push branch
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH --force
+         # Reset branch to the commit
+         git checkout -B $BRANCH $COMMIT_SHA
 
-          # Create tag pointing to that commit
-          git tag $TAG $COMMIT_SHA
-          git pull
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $TAG --force
+         # Force push branch
+         git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $BRANCH --force
+
+         # Create or update tag pointing to commit
+         git tag -f $TAG $COMMIT_SHA
+         git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} $TAG --force
